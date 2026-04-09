@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solar Runtime Estimator | Solpotentia Energy Ltd — Nigeria</title>
+<meta name="description" content="Free solar battery runtime estimator for Nigeria and Africa. Know exactly how long your battery will last. By Solpotentia Energy Ltd, Anambra State.">
+<meta name="keywords" content="solar battery runtime Nigeria, battery hours estimator, solar runtime calculator, off-grid Nigeria, Solpotentia">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0D1117;
+  --bg2: #161B22;
+  --bg3: #1C2333;
+  --border: rgba(88,166,255,0.12);
+  --blue: #58A6FF;
+  --orange: #F79A1E;
+  --green: #3FB950;
+  --red: #FF6B6B;
+  --yellow: #E3B341;
+  --white: #E6EDF3;
+  --muted: #7D8590;
+  --card: #1C2333;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'IBM Plex Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 130px;
+}
+body::before {
+  content:'';
+  position:fixed;
+  top:-300px; left:-300px;
+  width:700px; height:700px;
+  background: radial-gradient(circle, rgba(88,166,255,0.05) 0%, transparent 70%);
+  border-radius:50%;
+  pointer-events:none; z-index:0;
+  animation: bgpulse 8s ease-in-out infinite;
+}
+@keyframes bgpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+.wrap { max-width:900px; margin:0 auto; padding:0 18px; position:relative; z-index:1; }
+header { padding: 32px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 36px; }
+.brand-row { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:20px; }
+.brand-name { font-family:'Bebas Neue',sans-serif; font-size:clamp(18px,3.5vw,26px); letter-spacing:3px; color:var(--orange); line-height:1; }
+.brand-sub { font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-top:5px; line-height:1.7; }
+.brand-sub a { color:var(--blue); text-decoration:none; }
+.badge { background:var(--blue); color:var(--bg); font-family:'Bebas Neue',sans-serif; font-size:12px; letter-spacing:2px; padding:5px 12px; border-radius:5px; display:inline-block; white-space:nowrap; }
+.tool-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(34px,7vw,60px); letter-spacing:1px; line-height:1; color:var(--white); }
+.tool-title span { color:var(--blue); }
+.tool-sub { font-size:13px; color:var(--muted); font-family:'IBM Plex Mono',monospace; letter-spacing:2px; text-transform:uppercase; margin-top:8px; }
+.sec-label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--blue); margin-bottom:10px; }
+h2 { font-family:'Bebas Neue',sans-serif; font-size:clamp(22px,3.5vw,30px); letter-spacing:1px; color:var(--white); margin-bottom:6px; }
+.sec-desc { font-size:13px; color:var(--muted); margin-bottom:24px; line-height:1.6; max-width:520px; }
+.app-table-wrap { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:28px; }
+.app-table-header { display:grid; grid-template-columns: 2fr 80px 90px 90px 110px 100px 40px; background:var(--bg3); padding:10px 16px; border-bottom:1px solid var(--border); gap:8px; }
+.app-table-header span { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; }
+.app-row { display:grid; grid-template-columns: 2fr 80px 90px 90px 110px 100px 40px; padding:10px 16px; gap:8px; border-bottom:1px solid rgba(88,166,255,0.05); align-items:center; }
+.app-row:last-child { border-bottom:none; }
+.app-row input, .app-row select { width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(88,166,255,0.18); border-radius:6px; color:var(--white); font-family:'IBM Plex Mono',monospace; font-size:13px; padding:7px 9px; outline:none; transition:border-color 0.2s; }
+.app-row input:focus, .app-row select:focus { border-color:var(--blue); }
+.app-row select option { background:var(--bg2); }
+.app-row .wh-display { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--green); text-align:right; }
+.app-row .rw-display { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--orange); text-align:right; }
+.del-btn { background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.25); color:var(--red); border-radius:6px; width:30px; height:30px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:background 0.2s; flex-shrink:0; }
+.del-btn:hover { background:rgba(255,107,107,0.22); }
+.table-footer { background:var(--bg3); padding:12px 16px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+.totals { display:flex; gap:24px; flex-wrap:wrap; }
+.total-item { font-family:'IBM Plex Mono',monospace; font-size:12px; }
+.total-item span { color:var(--green); font-size:15px; font-weight:600; }
+.add-row-btn { background:transparent; border:1px solid rgba(88,166,255,0.3); color:var(--blue); font-family:'IBM Plex Sans',sans-serif; font-size:12px; padding:7px 16px; border-radius:7px; cursor:pointer; transition:all 0.2s; }
+.add-row-btn:hover { background:rgba(88,166,255,0.08); border-color:var(--blue); }
+.inputs-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap:14px; margin-bottom:28px; }
+.input-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.input-card label { display:block; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.input-card select, .input-card input[type=number] { width:100%; background:rgba(0,0,0,0.35); border:1px solid rgba(88,166,255,0.18); border-radius:7px; color:var(--white); font-family:'IBM Plex Mono',monospace; font-size:15px; padding:9px 12px; outline:none; -webkit-appearance:none; transition:border-color 0.2s; }
+.input-card select:focus, .input-card input[type=number]:focus { border-color:var(--blue); }
+.input-card select option { background:var(--bg2); }
+.input-card .hint { font-size:10px; color:var(--muted); margin-top:6px; line-height:1.5; }
+.toggle-row { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:28px; flex-wrap:wrap; }
+.toggle-label { font-size:14px; font-weight:500; }
+.toggle-desc { font-size:12px; color:var(--muted); margin-top:2px; }
+.toggle-switch { position:relative; width:52px; height:28px; flex-shrink:0; }
+.toggle-switch input { opacity:0; width:0; height:0; }
+.slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:var(--bg3); border-radius:28px; border:1px solid var(--border); transition:background 0.3s; }
+.slider:before { content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:var(--muted); border-radius:50%; transition:transform 0.3s, background 0.3s; }
+.toggle-switch input:checked + .slider { background:rgba(63,185,80,0.2); border-color:var(--green); }
+.toggle-switch input:checked + .slider:before { transform:translateX(24px); background:var(--green); }
+.solar-inputs { display:none; grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); gap:14px; margin-bottom:28px; }
+.solar-inputs.visible { display:grid; }
+.psh-ref { background:rgba(88,166,255,0.05); border:1px solid rgba(88,166,255,0.12); border-radius:8px; padding:12px 16px; font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-bottom:28px; line-height:1.9; }
+.psh-ref strong { color:var(--blue); }
+.calc-btn { width:100%; background:linear-gradient(135deg, var(--blue), #3B82F6); color:#fff; font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:3px; padding:18px; border:none; border-radius:12px; cursor:pointer; transition:opacity 0.2s, transform 0.15s; margin-bottom:40px; }
+.calc-btn:hover { opacity:0.9; transform:translateY(-2px); }
+.calc-btn:active { transform:translateY(0); }
+.error-msg { background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.3); border-radius:8px; padding:13px 18px; font-size:13px; color:var(--red); margin-bottom:18px; display:none; }
+#results { display:none; animation:fadeUp 0.4s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+.runtime-hero { background:linear-gradient(135deg, var(--bg3), var(--bg2)); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
+.runtime-big { font-family:'Bebas Neue',sans-serif; font-size:clamp(52px,10vw,80px); color:var(--green); line-height:1; }
+.runtime-big.warn { color:var(--yellow); }
+.runtime-big.danger { color:var(--red); }
+.runtime-label { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+.status-badge { display:inline-flex; align-items:center; gap:8px; padding:8px 16px; border-radius:20px; font-size:13px; font-weight:500; margin-top:10px; }
+.status-ok { background:rgba(63,185,80,0.12); border:1px solid rgba(63,185,80,0.3); color:var(--green); }
+.status-warn { background:rgba(227,179,65,0.12); border:1px solid rgba(227,179,65,0.3); color:var(--yellow); }
+.status-danger { background:rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.3); color:var(--red); }
+.status-overload { background:rgba(255,107,107,0.15); border:1px solid var(--red); color:var(--red); }
+.result-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(165px,1fr)); gap:12px; margin-bottom:20px; }
+.r-card { background:var(--card); border:1px solid var(--border); border-radius:11px; padding:18px 15px; position:relative; overflow:hidden; }
+.r-card::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.r-card.blue::after { background:var(--blue); }
+.r-card.green::after { background:var(--green); }
+.r-card.orange::after { background:var(--orange); }
+.r-card.yellow::after { background:var(--yellow); }
+.r-card.red::after { background:var(--red); }
+.r-label { font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-bottom:10px; }
+.r-val { font-family:'Bebas Neue',sans-serif; font-size:clamp(26px,4vw,34px); line-height:1; margin-bottom:3px; }
+.r-card.blue .r-val { color:var(--blue); }
+.r-card.green .r-val { color:var(--green); }
+.r-card.orange .r-val { color:var(--orange); }
+.r-card.yellow .r-val { color:var(--yellow); }
+.r-card.red .r-val { color:var(--red); }
+.r-unit { font-size:12px; color:var(--white); }
+.r-note { font-size:11px; color:var(--muted); margin-top:6px; line-height:1.5; }
+.rec-box { border-radius:12px; padding:18px 20px; margin-bottom:20px; font-size:13px; line-height:1.7; }
+.rec-box.good { background:rgba(63,185,80,0.07); border:1px solid rgba(63,185,80,0.25); color:var(--green); }
+.rec-box.warn { background:rgba(227,179,65,0.07); border:1px solid rgba(227,179,65,0.25); color:var(--yellow); }
+.rec-box.bad { background:rgba(255,107,107,0.07); border:1px solid rgba(255,107,107,0.25); color:var(--red); }
+.rec-box strong { display:block; font-size:14px; margin-bottom:4px; }
+.print-summary { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:28px; }
+.print-header { background:var(--bg3); padding:14px 20px; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:var(--orange); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.print-table { width:100%; border-collapse:collapse; }
+.print-table td { padding:11px 20px; font-size:13px; border-bottom:1px solid rgba(88,166,255,0.05); }
+.print-table tr:last-child td { border-bottom:none; }
+.print-table .pt-label { color:var(--muted); width:50%; }
+.print-table .pt-val { color:var(--white); font-weight:500; font-family:'IBM Plex Mono',monospace; font-size:13px; }
+.print-btn { background:transparent; border:1px solid rgba(88,166,255,0.3); color:var(--blue); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; padding:7px 16px; border-radius:7px; cursor:pointer; text-transform:uppercase; transition:all 0.2s; }
+.print-btn:hover { background:rgba(88,166,255,0.08); border-color:var(--blue); }
+.cta-block { background:var(--bg3); border:1px solid var(--border); border-radius:14px; padding:28px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; margin-bottom:28px; }
+.cta-title { font-family:'Bebas Neue',sans-serif; font-size:clamp(18px,3vw,26px); color:var(--orange); letter-spacing:2px; margin-bottom:6px; }
+.cta-desc { font-size:13px; color:var(--muted); line-height:1.7; max-width:400px; }
+.cta-btns { display:flex; flex-direction:column; gap:10px; min-width:190px; }
+.wa-btn { display:flex; align-items:center; gap:10px; background:#25D366; color:#fff; font-weight:600; font-size:14px; padding:12px 18px; border-radius:9px; text-decoration:none; }
+.call-btn { display:flex; align-items:center; gap:10px; background:var(--card); color:var(--white); font-weight:600; font-size:14px; padding:12px 18px; border-radius:9px; text-decoration:none; border:1px solid var(--border); }
+footer { border-top:1px solid var(--border); padding:26px 0 40px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.footer-brand { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:3px; color:var(--orange); }
+.footer-sub { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.8; }
+.footer-sub a { color:var(--blue); text-decoration:none; }
+.footer-right { text-align:right; font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; line-height:1.9; }
+.disclaimer { background:rgba(247,154,30,0.05); border:1px solid rgba(247,154,30,0.18); border-radius:9px; padding:14px 18px; font-size:11px; color:var(--muted); line-height:1.7; margin-bottom:20px; }
+.disclaimer strong { color:var(--orange); }
+.reset-btn { background:transparent; border:1px solid rgba(88,166,255,0.2); color:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; padding:9px 18px; border-radius:7px; cursor:pointer; transition:all 0.2s; margin-bottom:32px; }
+.reset-btn:hover { color:var(--blue); border-color:var(--blue); }
+@media(max-width:600px) {
+  .app-table-header { display:none; }
+  .app-row { grid-template-columns:1fr 1fr; grid-template-rows:auto auto auto; gap:6px; padding:12px; }
+  .app-row > input:first-child { grid-column:1/-1; }
+  .result-grid { grid-template-columns:1fr 1fr; }
+  .runtime-hero { flex-direction:column; }
+}
+@media print {
+  body { background:#fff; color:#000; }
+  .calc-btn, .reset-btn, .add-row-btn, .del-btn, .print-btn, .cta-block, .sol-cta-banner { display:none !important; }
+}
+
+/* ===== CTA BANNER ===== */
+.sol-cta-banner {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 9999;
+  background: linear-gradient(135deg, #0D1117 0%, #161B22 60%, #0D1117 100%);
+  border-top: 3px solid #F79A1E;
+  padding: 12px 16px;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.6);
+  font-family: 'IBM Plex Sans', sans-serif;
+  animation: slideUp 0.6s ease-out;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.sol-cta-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.sol-cta-text { flex: 1; min-width: 180px; }
+.sol-cta-headline { color: #F79A1E; font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+.sol-cta-sub { color: rgba(230,237,243,0.65); font-size: 0.74rem; line-height: 1.4; }
+.sol-cta-features { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 3px; }
+.sol-cta-features span { font-size: 0.68rem; color: rgba(230,237,243,0.55); }
+.sol-cta-features span::before { content: '✓ '; color: #3FB950; font-weight: 700; }
+.sol-cta-price {
+  background: rgba(247,154,30,0.12);
+  border: 1px solid rgba(247,154,30,0.35);
+  border-radius: 8px; padding: 6px 12px;
+  text-align: center; flex-shrink: 0;
+}
+.sol-cta-price .price-amount { color: #F79A1E; font-weight: 800; font-size: 1.05rem; display: block; font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; }
+.sol-cta-price .price-label { color: rgba(230,237,243,0.5); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.sol-cta-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, #F79A1E 0%, #e08910 100%);
+  color: #0D1117; font-weight: 700; font-size: 0.83rem;
+  padding: 11px 18px; border-radius: 10px;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: all 0.2s; flex-shrink: 0;
+  font-family: 'IBM Plex Sans', sans-serif;
+  box-shadow: 0 4px 14px rgba(247,154,30,0.35);
+  white-space: nowrap;
+}
+.sol-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(247,154,30,0.5); }
+.sol-cta-close {
+  background: rgba(255,255,255,0.06); border: none;
+  color: rgba(230,237,243,0.4); width: 26px; height: 26px;
+  border-radius: 50%; cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: all 0.15s; align-self: flex-start;
+}
+.sol-cta-close:hover { background: rgba(255,255,255,0.15); color: white; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <div class="brand-row">
+    <div>
+      <div class="brand-name">SOLPOTENTIA ENERGY LTD</div>
+      <div class="brand-sub">
+        📍 Alor, Anambra State, Nigeria &nbsp;|&nbsp;
+        📞 <a href="tel:+2348137627210">+234 813 762 7210</a> &nbsp;|&nbsp;
+        ✉️ <a href="mailto:solpotentia@gmail.com">solpotentia@gmail.com</a>
+      </div>
+    </div>
+    <div>
+      <div class="badge">FREE TOOL</div>
+      <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:5px;text-align:right;">v1.0 · Nigeria & Africa</div>
+    </div>
+  </div>
+  <div class="tool-title">Solar Runtime<br><span>Estimator</span></div>
+  <div class="tool-sub">⚡ Know exactly how long your battery will last</div>
+</header>
+
+<div class="sec-label">Step 01</div>
+<h2>Enter Your Appliances</h2>
+<p class="sec-desc">List every appliance you want to run. Enter name, quantity, wattage and daily hours.</p>
+
+<div class="app-table-wrap">
+  <div class="app-table-header">
+    <span>Appliance</span><span>Qty</span><span>Watts (W)</span><span>Hrs/Day</span><span>Daily Wh</span><span>Running W</span><span></span>
+  </div>
+  <div id="appRows"></div>
+  <div class="table-footer">
+    <div class="totals">
+      <div class="total-item">Total Daily Energy: <span id="totalWh">0</span> Wh</div>
+      <div class="total-item">Total Running Load: <span id="totalW">0</span> W</div>
+    </div>
+    <button class="add-row-btn" onclick="addRow()">＋ Add Appliance</button>
+  </div>
+</div>
+
+<div class="sec-label">Step 02</div>
+<h2>Your Battery Specifications</h2>
+<p class="sec-desc">Enter the specs of the battery you already have or plan to use.</p>
+
+<div class="inputs-grid">
+  <div class="input-card">
+    <label>Battery Voltage (V)</label>
+    <select id="battV"><option value="12">12V</option><option value="24" selected>24V</option><option value="48">48V</option></select>
+  </div>
+  <div class="input-card">
+    <label>Battery Capacity (Ah)</label>
+    <input type="number" id="battAh" value="200" min="1">
+    <div class="hint">e.g. 100, 150, 200Ah</div>
+  </div>
+  <div class="input-card">
+    <label>Battery Type</label>
+    <select id="battType" onchange="updateDoD()">
+      <option value="0.8">Lithium LiFePO4</option>
+      <option value="0.6">Sealed AGM / GEL</option>
+      <option value="0.5">Flooded Lead-Acid</option>
+    </select>
+  </div>
+  <div class="input-card">
+    <label>Depth of Discharge (%)</label>
+    <input type="number" id="dod" value="80" min="1" max="100" readonly>
+    <div class="hint">Auto-set from battery type</div>
+  </div>
+  <div class="input-card">
+    <label>Inverter Efficiency (%)</label>
+    <input type="number" id="invEff" value="85" min="50" max="99">
+    <div class="hint">Typical: 85–92%</div>
+  </div>
+  <div class="input-card">
+    <label>Inverter Capacity (W)</label>
+    <input type="number" id="invCap" value="1500" min="100">
+    <div class="hint">Your inverter's rated output</div>
+  </div>
+  <div class="input-card">
+    <label>Days of Autonomy</label>
+    <input type="number" id="autonomy" value="1" min="0.5" max="7" step="0.5">
+    <div class="hint">Backup days without sun</div>
+  </div>
+</div>
+
+<div class="sec-label">Step 03 — Optional</div>
+<h2>Solar Panel Top-Up</h2>
+<p class="sec-desc">If your solar panels are charging the battery while appliances run, enable this to see the extended runtime.</p>
+
+<div class="toggle-row">
+  <div>
+    <div class="toggle-label">☀️ Include Solar Charging Input</div>
+    <div class="toggle-desc">Accounts for panels replenishing the battery during the day</div>
+  </div>
+  <label class="toggle-switch">
+    <input type="checkbox" id="solarToggle" onchange="toggleSolar()">
+    <span class="slider"></span>
+  </label>
+</div>
+
+<div class="solar-inputs" id="solarInputs">
+  <div class="input-card">
+    <label>Solar Array Size (Wp)</label>
+    <input type="number" id="arrayWp" value="1000" min="0">
+    <div class="hint">Total panel wattage installed</div>
+  </div>
+  <div class="input-card">
+    <label>Peak Sun Hours / Day</label>
+    <select id="psh">
+      <option value="4">4 hrs — Rainy season / PH</option>
+      <option value="4.2">4.2 hrs — Owerri</option>
+      <option value="4.5" selected>4.5 hrs — Lagos / Enugu avg</option>
+      <option value="4.6">4.6 hrs — Enugu</option>
+      <option value="5">5 hrs — Abuja / Jos</option>
+      <option value="5.5">5.5 hrs — Abuja / Kaduna</option>
+      <option value="5.8">5.8 hrs — Kaduna</option>
+      <option value="6">6.0 hrs — Kano</option>
+      <option value="6.3">6.3 hrs — Sokoto</option>
+    </select>
+  </div>
+  <div class="input-card">
+    <label>Charge Controller</label>
+    <select id="ccType">
+      <option value="0.95">MPPT (95% efficient)</option>
+      <option value="0.75">PWM (75% efficient)</option>
+    </select>
+  </div>
+  <div class="input-card">
+    <label>Panel Derating Factor (%)</label>
+    <input type="number" id="derating" value="80" min="50" max="100">
+    <div class="hint">Heat, dust, ageing — 80% typical Nigeria</div>
+  </div>
+</div>
+
+<div class="psh-ref">
+  <strong>🗺 Nigerian Peak Sun Hours Reference:</strong><br>
+  Lagos 4.5 · Port Harcourt 4.0 · Enugu 4.6 · Owerri 4.2 · Abuja 5.5 · Jos 5.6 · Kaduna 5.8 · Kano 6.0 · Sokoto 6.3
+</div>
+
+<div class="error-msg" id="errMsg">⚠ Please add at least one appliance with valid wattage and hours before calculating.</div>
+<button class="calc-btn" onclick="calculate()">⚡ Calculate Runtime Now</button>
+
+<div id="results">
+  <div class="sec-label">Your Results</div>
+  <div class="runtime-hero">
+    <div>
+      <div class="runtime-label">Estimated Battery Runtime</div>
+      <div class="runtime-big" id="runtimeBig">—</div>
+      <div id="overloadBadge"></div>
+      <div id="recBadge" style="margin-top:10px;"></div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:4px;">TOTAL LOAD</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--orange)" id="heroLoad">—</div>
+      <div style="font-size:12px;color:var(--muted);">Watts running simultaneously</div>
+      <div style="margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">USABLE BATTERY ENERGY</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--blue)" id="heroUsable">—</div>
+    </div>
+  </div>
+  <div class="rec-box" id="recBox"></div>
+  <div class="result-grid">
+    <div class="r-card blue"><div class="r-label">⚡ Effective Load</div><div class="r-val" id="effLoad">—</div><div class="r-unit">Watts (with inverter loss)</div><div class="r-note" id="effLoadNote"></div></div>
+    <div class="r-card green"><div class="r-label">🔋 Total Battery Energy</div><div class="r-val" id="totalBattWh">—</div><div class="r-unit">Wh (gross)</div><div class="r-note" id="battNote"></div></div>
+    <div class="r-card orange"><div class="r-label">🔌 Inverter Suggestion</div><div class="r-val" id="invSuggest">—</div><div class="r-unit">kVA recommended</div><div class="r-note" id="invNote"></div></div>
+    <div class="r-card yellow"><div class="r-label">🏦 Battery Bank Needed</div><div class="r-val" id="battBankAh">—</div><div class="r-unit">Ah required</div><div class="r-note" id="battBankNote"></div></div>
+    <div class="r-card blue"><div class="r-label">☀️ Solar Panels Needed</div><div class="r-val" id="panelsNeeded">—</div><div class="r-unit" id="panelUnit">panels</div><div class="r-note" id="panelNote"></div></div>
+    <div class="r-card green" id="chargeTimeCard"><div class="r-label">⏱ Charge Time</div><div class="r-val" id="chargeTime">—</div><div class="r-unit">to fully recharge</div><div class="r-note" id="chargeNote"></div></div>
+  </div>
+  <div class="print-summary">
+    <div class="print-header">📋 Printable Report Summary<button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button></div>
+    <table class="print-table" id="printTable"></table>
+  </div>
+  <div class="disclaimer">
+    <strong>⚠ Disclaimer:</strong> These results are estimates based on standard engineering formulas. Actual runtime varies with battery age, ambient temperature, load fluctuations, and wiring losses. Always verify with a certified solar technician. <strong>Solpotentia Energy Ltd</strong> recommends professional assessment for systems above 3kVA.
+  </div>
+  <button class="reset-btn" onclick="resetAll()">↩ Start Over</button>
+</div>
+
+<div class="cta-block">
+  <div>
+    <div class="cta-title">Need a Professional Solar Installation?</div>
+    <div class="cta-desc">Our team designs and installs solar systems across Southeast Nigeria. Free site assessment and customised quote from Solpotentia Energy Ltd.</div>
+  </div>
+  <div class="cta-btns">
+    <a class="wa-btn" href="https://wa.me/2348137627210?text=Hi%20Solpotentia%2C%20I%20used%20your%20Runtime%20Estimator%20and%20I%27d%20like%20a%20quote" target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp Us
+    </a>
+    <a class="call-btn" href="tel:+2348137627210">📞 Call Us Directly</a>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="footer-brand">SOLPOTENTIA ENERGY LTD</div>
+    <div class="footer-sub">
+      Solar Energy · PTZ Security Cameras · Tech Solutions<br>
+      📍 Alor, Idemili South LGA, Anambra State, Nigeria 🇳🇬<br>
+      📞 <a href="tel:+2348137627210">+234 813 762 7210</a> &nbsp;
+      ✉️ <a href="mailto:solpotentia@gmail.com">solpotentia@gmail.com</a>
+    </div>
+  </div>
+  <div class="footer-right">Solar Runtime Estimator v1.0<br>© 2025 Solpotentia Energy Ltd<br>All rights reserved</div>
+</footer>
+
+</div>
+
+<!-- ===== CTA BANNER ===== -->
+<div class="sol-cta-banner" id="solCtaBanner">
+  <div class="sol-cta-inner">
+    <div class="sol-cta-text">
+      <div class="sol-cta-headline">🚀 Want a Full Professional Solar Report?</div>
+      <div class="sol-cta-sub">Exact sizing, cost breakdown, wiring config & printable proposal</div>
+      <div class="sol-cta-features">
+        <span>Battery bank config</span>
+        <span>Exact panel count</span>
+        <span>Cost estimate (₦)</span>
+        <span>Inverter sizing</span>
+      </div>
+    </div>
+    <div class="sol-cta-price">
+      <span class="price-amount">₦3,000</span>
+      <span class="price-label">Full Report</span>
+    </div>
+    <a class="sol-cta-btn"
+       href="https://t.me/SolpotentiaSolarBot?start=fullreport"
+       target="_blank" rel="noopener">
+      📲 Get Full Report
+    </a>
+    <button class="sol-cta-close"
+            onclick="document.getElementById('solCtaBanner').style.display='none'"
+            title="Close">✕</button>
+  </div>
+</div>
+
+<script>
+const DEFAULTS = [
+  {name:'Fan', qty:2, watts:60, hours:8},
+  {name:'LED Lights', qty:6, watts:15, hours:5},
+  {name:'TV', qty:1, watts:100, hours:5},
+  {name:'Fridge', qty:1, watts:150, hours:8},
+  {name:'Laptop', qty:1, watts:65, hours:4},
+  {name:'Phone Charger', qty:2, watts:10, hours:3},
+];
+const INV_SIZES = [0.5,0.65,1,1.5,2,3,3.5,5,7.5,10];
+function nextInv(w) { return INV_SIZES.find(s=>s*1000>=w) || INV_SIZES[INV_SIZES.length-1]; }
+let rowCount = 0;
+function addRow(data={}) {
+  rowCount++;
+  const id = rowCount;
+  const div = document.createElement('div');
+  div.className = 'app-row';
+  div.id = 'row-'+id;
+  div.innerHTML = `<input type="text" placeholder="Appliance name" value="${data.name||''}" oninput="updateTotals()"><input type="number" min="1" value="${data.qty||1}" oninput="updateTotals()"><input type="number" min="0" value="${data.watts||''}" placeholder="W" oninput="updateTotals()"><input type="number" min="0" max="24" step="0.5" value="${data.hours||''}" placeholder="hrs" oninput="updateTotals()"><div class="wh-display" id="wh-${id}">—</div><div class="rw-display" id="rw-${id}">—</div><button class="del-btn" onclick="delRow(${id})">✕</button>`;
+  document.getElementById('appRows').appendChild(div);
+  updateTotals();
+}
+function delRow(id) { const el=document.getElementById('row-'+id); if(el)el.remove(); updateTotals(); }
+function getRows() {
+  return Array.from(document.querySelectorAll('.app-row')).map(r=>{
+    const inputs=r.querySelectorAll('input');
+    return {name:inputs[0].value,qty:parseFloat(inputs[1].value)||1,watts:parseFloat(inputs[2].value)||0,hours:parseFloat(inputs[3].value)||0,id:r.id.replace('row-','')};
+  });
+}
+function updateTotals() {
+  const rows=getRows(); let totalWh=0,totalW=0;
+  rows.forEach(r=>{
+    const wh=r.qty*r.watts*r.hours,rw=r.qty*r.watts;
+    totalWh+=wh; totalW+=rw;
+    const whEl=document.getElementById('wh-'+r.id),rwEl=document.getElementById('rw-'+r.id);
+    if(whEl)whEl.textContent=wh>0?Math.round(wh)+' Wh':'—';
+    if(rwEl)rwEl.textContent=rw>0?Math.round(rw)+' W':'—';
+  });
+  document.getElementById('totalWh').textContent=Math.round(totalWh);
+  document.getElementById('totalW').textContent=Math.round(totalW);
+}
+function updateDoD() { document.getElementById('dod').value=Math.round(parseFloat(document.getElementById('battType').value)*100); }
+function toggleSolar() { document.getElementById('solarInputs').classList.toggle('visible',document.getElementById('solarToggle').checked); }
+function fmtHM(hrs) { const h=Math.floor(hrs),m=Math.round((hrs-h)*60); return h+'h '+(m===0?'00':String(m).padStart(2,'0'))+'m'; }
+function calculate() {
+  const errEl=document.getElementById('errMsg'); errEl.style.display='none';
+  const rows=getRows().filter(r=>r.watts>0&&r.hours>0);
+  if(rows.length===0){errEl.style.display='block';return;}
+  const totalDailyWh=rows.reduce((s,r)=>s+(r.qty*r.watts*r.hours),0);
+  const totalRunW=rows.reduce((s,r)=>s+(r.qty*r.watts),0);
+  const battV=parseFloat(document.getElementById('battV').value);
+  const battAh=parseFloat(document.getElementById('battAh').value);
+  const dod=parseFloat(document.getElementById('dod').value)/100;
+  const invEff=parseFloat(document.getElementById('invEff').value)/100;
+  const invCap=parseFloat(document.getElementById('invCap').value);
+  const autonomy=parseFloat(document.getElementById('autonomy').value);
+  const solarOn=document.getElementById('solarToggle').checked;
+  const totalBattWh=battV*battAh,usableBattWh=totalBattWh*dod,effLoad=totalRunW/invEff,runtimeHrs=usableBattWh/effLoad;
+  let solarTopupW=0,chargeTimeHrs=null,solarArrayWp=0;
+  if(solarOn){
+    solarArrayWp=parseFloat(document.getElementById('arrayWp').value)||0;
+    const psh=parseFloat(document.getElementById('psh').value),ccEff=parseFloat(document.getElementById('ccType').value),derating=parseFloat(document.getElementById('derating').value)/100;
+    solarTopupW=solarArrayWp*derating*ccEff;
+    chargeTimeHrs=solarTopupW>0?usableBattWh/solarTopupW:null;
+  }
+  const reqBattAh=(totalDailyWh*autonomy)/(dod*battV),numBatts=Math.ceil(reqBattAh/battAh),invNeeded=nextInv(totalRunW*1.25),overloaded=totalRunW>invCap;
+  const psh2=solarOn?parseFloat(document.getElementById('psh').value):4.5,derating2=solarOn?parseFloat(document.getElementById('derating').value)/100:0.8;
+  const arrayNeeded=(totalDailyWh/(0.85*derating2))/psh2,panelWp=solarOn?(parseFloat(document.getElementById('arrayWp').value)||350):350,numPanels=Math.ceil(arrayNeeded/panelWp);
+  const displayRuntime=solarOn&&solarTopupW>0?Math.max(0,usableBattWh/Math.max(0.1,effLoad-solarTopupW)):runtimeHrs,cappedRuntime=Math.min(displayRuntime,999);
+  const rBig=document.getElementById('runtimeBig');
+  rBig.textContent=cappedRuntime>=99?'99+ hrs':fmtHM(cappedRuntime);
+  rBig.className='runtime-big'+(cappedRuntime<2?' danger':cappedRuntime<4?' warn':'');
+  document.getElementById('heroLoad').textContent=Math.round(totalRunW)+'W';
+  document.getElementById('heroUsable').textContent=Math.round(usableBattWh)+' Wh';
+  const oblEl=document.getElementById('overloadBadge');
+  oblEl.innerHTML=overloaded?`<div class="status-badge status-overload">⚠ OVERLOAD — Load (${Math.round(totalRunW)}W) exceeds inverter (${invCap}W)</div>`:`<div class="status-badge status-ok">✅ Load within safe inverter range</div>`;
+  const recBox=document.getElementById('recBox');
+  let recClass,recText;
+  if(overloaded){recClass='bad';recText=`<strong>⚠ Overload Warning</strong>Your load (${Math.round(totalRunW)}W) exceeds inverter capacity (${invCap}W). Reduce load or upgrade to a ${invNeeded}kVA inverter.`;}
+  else if(cappedRuntime<2){recClass='bad';recText=`<strong>🔴 Runtime is very short — under 2 hours</strong>Consider a larger battery bank. A ${Math.ceil(reqBattAh/100)*100}Ah bank (${numBatts} × ${battAh}Ah) would give ${autonomy} day(s) backup.`;}
+  else if(cappedRuntime<4){recClass='warn';recText=`<strong>🟡 Moderate runtime — ${fmtHM(cappedRuntime)}</strong>This covers short outages but may not last the night. Consider ${numBatts>1?numBatts+' batteries':'a larger battery'} for better autonomy.`;}
+  else{recClass='good';recText=`<strong>🟢 Good runtime — ${fmtHM(cappedRuntime)}</strong>Your battery can comfortably handle your load. ${solarOn?'With solar top-up, you may run indefinitely during peak sun hours.':'Adding solar panels will extend runtime further.'}`;}
+  recBox.className='rec-box '+recClass; recBox.innerHTML=recText;
+  document.getElementById('effLoad').textContent=Math.round(effLoad);
+  document.getElementById('effLoadNote').textContent=`${Math.round(totalRunW)}W load ÷ ${Math.round(invEff*100)}% inverter efficiency`;
+  document.getElementById('totalBattWh').textContent=Math.round(totalBattWh);
+  document.getElementById('battNote').textContent=`Usable: ${Math.round(usableBattWh)} Wh (${Math.round(dod*100)}% DoD)`;
+  document.getElementById('invSuggest').textContent=invNeeded;
+  document.getElementById('invNote').textContent=`For ${Math.round(totalRunW)}W load + 25% surge margin`;
+  document.getElementById('battBankAh').textContent=Math.round(reqBattAh);
+  document.getElementById('battBankNote').textContent=`${numBatts} × ${battAh}Ah batteries for ${autonomy} day(s) backup`;
+  document.getElementById('panelsNeeded').textContent=numPanels;
+  document.getElementById('panelUnit').textContent=`× ${panelWp}Wp panels`;
+  document.getElementById('panelNote').textContent=`Array: ${Math.round(arrayNeeded)}Wp needed at ${psh2} PSH`;
+  const ctCard=document.getElementById('chargeTimeCard');
+  if(solarOn&&chargeTimeHrs!==null){document.getElementById('chargeTime').textContent=fmtHM(chargeTimeHrs);document.getElementById('chargeNote').textContent=`Solar: ${Math.round(solarTopupW)}W effective charging power`;ctCard.style.opacity='1';}
+  else{document.getElementById('chargeTime').textContent='N/A';document.getElementById('chargeNote').textContent='Enable solar input to calculate';ctCard.style.opacity='0.4';}
+  const battTypeLabel={0.8:'Lithium LiFePO4',0.6:'Sealed AGM/GEL',0.5:'Flooded Lead-Acid'}[dod]||'Lithium';
+  const rows2=[
+    ['Date',new Date().toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'})],
+    ['Total Daily Energy',Math.round(totalDailyWh)+' Wh'],
+    ['Total Running Load',Math.round(totalRunW)+' W'],
+    ['Battery',battV+'V / '+battAh+'Ah '+battTypeLabel],
+    ['Usable Battery Energy',Math.round(usableBattWh)+' Wh'],
+    ['Effective Load (with inverter loss)',Math.round(effLoad)+' W'],
+    ['Estimated Runtime',fmtHM(cappedRuntime)+(solarOn?' (with solar top-up)':'')],
+    ['Inverter Recommendation',invNeeded+'kVA Pure Sine Wave'],
+    ['Battery Bank Required',Math.round(reqBattAh)+' Ah ('+numBatts+' × '+battAh+'Ah)'],
+    ['Solar Panels Required',numPanels+' × '+panelWp+'Wp'],
+    solarOn&&chargeTimeHrs!==null?['Estimated Charge Time',fmtHM(chargeTimeHrs)]:null,
+    ['Overload Status',overloaded?'⚠ OVERLOAD — Reduce load or upgrade inverter':'✅ OK — Within safe range'],
+  ].filter(Boolean);
+  document.getElementById('printTable').innerHTML=rows2.map(([l,v])=>`<tr><td class="pt-label">${l}</td><td class="pt-val">${v}</td></tr>`).join('');
+  document.getElementById('results').style.display='block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function resetAll() {
+  document.getElementById('results').style.display='none';
+  document.getElementById('errMsg').style.display='none';
+  document.getElementById('appRows').innerHTML='';
+  document.getElementById('solarInputs').classList.remove('visible');
+  document.getElementById('solarToggle').checked=false;
+  DEFAULTS.forEach(d=>addRow(d)); updateTotals();
+}
+document.addEventListener('DOMContentLoaded',function(){ DEFAULTS.forEach(d=>addRow(d)); updateTotals(); });
+</script>
+</body>
+</html>
