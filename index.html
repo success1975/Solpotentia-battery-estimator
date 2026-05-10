@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- PWA Support -->
+  <meta name="theme-color" content="#4A9EE8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Solpotentia Runtime Estimator">
+  <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIlNvbHBvdGVudGlhIFJ1bnRpbWUgRXN0aW1hdG9yIiwKICAic2hvcnRfbmFtZSI6ICJSdW50aW1lRXN0IiwKICAiZGVzY3JpcHRpb24iOiAiRnJlZSBzb2xhciBiYXR0ZXJ5IHJ1bnRpbWUgZXN0aW1hdG9yIGZvciBOaWdlcmlhIGJ5IFNvbHBvdGVudGlhIEVuZXJneSBMdGQiLAogICJzdGFydF91cmwiOiAiL1NvbHBvdGVudGlhLWJhdHRlcnktZXN0aW1hdG9yLyIsCiAgInNjb3BlIjogIi9Tb2xwb3RlbnRpYS1iYXR0ZXJ5LWVzdGltYXRvci8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgInRoZW1lX2NvbG9yIjogIiM0QTlFRTgiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwQTBDMTAiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxOTIgMTkyJz48cmVjdCB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgcng9JzQwJyBmaWxsPScjNEE5RUU4Jy8+PHRleHQgeT0nMTMwJyB4PSczMCcgZm9udC1zaXplPScxMzAnPvCflIs8L3RleHQ+PC9zdmc+IiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0sCiAgImNhdGVnb3JpZXMiOiBbInV0aWxpdGllcyIsICJidXNpbmVzcyJdCn0=">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Battery Runtime Estimator | Solpotentia Energy Ltd</title>
@@ -255,7 +262,7 @@ body{background:var(--dark);color:var(--white);font-family:'DM Sans',sans-serif;
       <span class="cta-feat">Cost estimate (NGN)</span>
       <span class="cta-feat">Inverter sizing</span>
     </div>
-    <a href="https://t.me/SolpotentiaSolarBot?start=fullreport" class="cta-btn">Get Full Report - NGN 2,000</a>
+    <a href="https://t.me/SolpotentiaSolarBot?start=fullreport" class="cta-btn">Get Full Report - NGN 5,000</a>
     <div class="cta-price">Delivered via Telegram within 10 minutes</div>
   </div>
   <div class="results-section" id="resultsSection">
@@ -315,6 +322,23 @@ body{background:var(--dark);color:var(--white);font-family:'DM Sans',sans-serif;
     <div class="picker-list" id="pickerList"></div>
   </div>
 </div>
+
+<!-- PWA INSTALL BANNER -->
+<div id="pwa-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#4A9EE8;padding:14px 16px;box-shadow:0 -4px 20px rgba(0,0,0,0.5);">
+  <div style="max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:28px;line-height:1;">🔋</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#fff;">Install Solpotentia App</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.85);">Runtime Estimator · Works offline · No data used</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+      <button onclick="dismissInstall()" style="background:rgba(0,0,0,0.2);border:none;color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;">Later</button>
+      <button onclick="installApp()" style="background:#fff;border:none;color:#4A9EE8;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;">Install ↓</button>
+    </div>
+  </div>
+</div>
 <footer class="footer">
   <strong style="color:var(--orange)">Solpotentia Energy Ltd</strong><br>
   Alor, Anambra State - Nigeria<br>
@@ -353,6 +377,84 @@ function selectAppliance(name,watts){if(activeRowId===null)return;const id=activ
 function updateSummary(){let tW=0,tWh=0,cnt=0;document.querySelectorAll('.appliance-row').forEach(row=>{const id=row.id.replace('row-','');const btn=document.getElementById('btn-'+id);const sel=btn&&!btn.classList.contains('placeholder-text');const qty=parseFloat(document.getElementById('qty-'+id)?.value)||0;const w=parseFloat(document.getElementById('watts-'+id)?.value)||0;const h=parseFloat(document.getElementById('hours-'+id)?.value)||0;if(sel&&w>0&&qty>0){tW+=qty*w;tWh+=qty*w*h;cnt++;}});document.getElementById('totalWatts').textContent=tW.toFixed(0)+' W';document.getElementById('totalWh').textContent=tWh>=1000?(tWh/1000).toFixed(2)+' kWh':Math.round(tWh)+' Wh';document.getElementById('applianceCount').textContent=cnt;}
 function calculate(){const errEl=document.getElementById('errorMsg');let tW=0,tWh=0,ok=false;document.querySelectorAll('.appliance-row').forEach(row=>{const id=row.id.replace('row-','');const btn=document.getElementById('btn-'+id);const sel=btn&&!btn.classList.contains('placeholder-text');const qty=parseFloat(document.getElementById('qty-'+id)?.value);const w=parseFloat(document.getElementById('watts-'+id)?.value);const h=parseFloat(document.getElementById('hours-'+id)?.value);if(sel&&!isNaN(qty)&&!isNaN(w)&&!isNaN(h)&&w>0&&qty>0&&h>0){tW+=qty*w;tWh+=qty*w*h;ok=true;}});if(!ok){errEl.style.display='block';return;}errEl.style.display='none';const volt=params.volt;const dod=params.batt;const battAh=parseFloat(document.getElementById('battAh').value)||200;const invEff=(parseFloat(document.getElementById('invEff').value)||88)/100;const grossWh=battAh*volt;const usableWh=grossWh*dod;const effLoad=tW/invEff;let solarWh=0;if(solarEnabled){const sWp=parseFloat(document.getElementById('solarWp').value)||0;solarWh=sWp*params.psh*params.cc*0.80;}const netPerHr=effLoad-(solarWh/24);let runtime,days;if(netPerHr<=0){runtime=999;days=999;}else{runtime=usableWh/netPerHr;days=tWh>0?usableWh/(tWh-solarWh>0?tWh-solarWh:tWh):0;}const rEl=document.getElementById('rRuntime');const rUEl=document.getElementById('rRuntimeUnit');const rSEl=document.getElementById('rRuntimeSub');if(runtime>=999){rEl.textContent='INF';rUEl.textContent='Solar covers load fully';rSEl.textContent='Battery only needed for nights/cloudy days';}else if(runtime>=24){const d=Math.floor(runtime/24);const h=(runtime%24).toFixed(1);rEl.textContent=d;rUEl.textContent='day(s) + '+h+' hours';rSEl.textContent='Total '+runtime.toFixed(1)+' hours runtime';}else{rEl.textContent=runtime.toFixed(1);rUEl.textContent='hours';rSEl.textContent=runtime<4?'Consider a larger battery bank':runtime<8?'Adequate for daytime use':'Good - covers overnight use';}const sb=document.getElementById('statusBar');if(runtime<4){sb.className='status-bar status-bad';sb.textContent='Critical - Battery too small for this load. Increase capacity or reduce appliances.';}else if(runtime<8){sb.className='status-bar status-warn';sb.textContent='Marginal - Runtime is limited. Consider adding panels for top-up charging.';}else{sb.className='status-bar status-good';sb.textContent='Good - Your battery can handle this load comfortably.';}document.getElementById('rUsableWh').textContent=usableWh.toFixed(0)+' Wh';document.getElementById('rEffLoad').textContent=effLoad.toFixed(0)+' W';document.getElementById('rSolarIn').textContent=solarEnabled?solarWh.toFixed(0)+' Wh':'Not enabled';document.getElementById('rDays').textContent=runtime>=999?'INF':(runtime/24).toFixed(1);const bom=[['Batt','Battery Bank',battAh+'Ah / '+volt+'V'],['Gross','Gross Battery Energy',grossWh.toFixed(0)+' Wh'],['Usable','Usable Energy ('+(dod*100).toFixed(0)+'% DoD)',usableWh.toFixed(0)+' Wh'],['Load','Total Running Load',tW.toFixed(0)+' W'],['Eff','Effective Load ('+(invEff*100).toFixed(0)+'% inv. eff.)',effLoad.toFixed(0)+' W'],['Solar','Solar Top-Up',solarEnabled?solarWh.toFixed(0)+' Wh/day':'Not enabled'],['Time','Calculated Runtime',runtime>=999?'Indefinite':runtime.toFixed(1)+' hours']];document.getElementById('bomTable').innerHTML=bom.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('');const res=document.getElementById('resultsSection');res.classList.add('visible');setTimeout(()=>res.scrollIntoView({behavior:'smooth',block:'start'}),100);}
 function resetAll(){document.getElementById('applianceBody').innerHTML='';document.getElementById('resultsSection').classList.remove('visible');document.getElementById('errorMsg').style.display='none';rowId=0;addRow();addRow();addRow();updateSummary();window.scrollTo({top:0,behavior:'smooth'});}
+</script>
+
+<script>
+// PWA Install Logic
+let deferredPrompt = null;
+const banner = document.getElementById('pwa-banner');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show banner after 3 seconds
+  setTimeout(() => {
+    if (!localStorage.getItem('pwa-dismissed-RuntimeEst')) {
+      banner.style.display = 'block';
+    }
+  }, 3000);
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choice) => {
+      if (choice.outcome === 'accepted') {
+        banner.style.display = 'none';
+        localStorage.setItem('pwa-dismissed-RuntimeEst', '1');
+      }
+      deferredPrompt = null;
+    });
+  } else {
+    // Fallback for iOS
+    alert('To install: tap the Share button in your browser, then "Add to Home Screen"');
+  }
+}
+
+function dismissInstall() {
+  banner.style.display = 'none';
+  localStorage.setItem('pwa-dismissed-RuntimeEst', '1');
+}
+
+window.addEventListener('appinstalled', () => {
+  banner.style.display = 'none';
+  deferredPrompt = null;
+});
+
+// Register inline service worker for offline support
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE = 'solpotentia-runtimeest-v1';
+const ASSETS = [self.location.pathname];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(
+    keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+  )));
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {
+      const clone = res.clone();
+      caches.open(CACHE).then(c => c.put(e.request, clone));
+      return res;
+    }))
+  );
+});
+  `;
+  const blob = new Blob([swCode], {type: 'application/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl, {scope: '/Solpotentia-battery-estimator/'})
+    .then(() => console.log('SW registered for Runtime Estimator'))
+    .catch(e => console.log('SW registration failed:', e));
+}
 </script>
 </body>
 </html>
