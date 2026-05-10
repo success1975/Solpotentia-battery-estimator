@@ -1,2 +1,2 @@
 # Solpotentia-battery-estimator
-Free tool to know exactly how long your battery will last
+Free tool that lets you know exactly how long your battery will last
